@@ -8,7 +8,7 @@ permalink: /
 
 
 
-Mon site
+Mon site v2
 
 # Focus on writing good documentation
 {: .fs-9 }
