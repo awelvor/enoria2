@@ -1,0 +1,231 @@
+<code-language-twig><html><body>
+ 
+ {#détermination du type de tri#}
+    {# choix par défaut par alpha Nom#}
+    {% set choixtri='NomPer' %}
+    {% if options.choixtri=='alphabétique Prénom' %}
+        {% set choixtri='PrenomPersonne' %} 
+    {% endif %}
+    {% if options.choixtri=='Tournée facteur' %}
+        {% set choixtri='ValChampsSupplTourneeFac' %} 
+    {% endif %}
+    {% if options.choixtri=='bac poste' %}
+        {% set choixtri='varValChampsSupplBacPost' %} 
+    {% endif %}
+    {% if options.choixtri=='numéro abonné' %}
+        {% set choixtri='ValNumAbon' %} 
+    {% endif %}
+    
+    
+    
+    {# si il ya des inscriptions#}
+{% if inscriptions %}
+  
+    {#on crée les enregistrement des valeurs des champsup avec les infos de la personne#}
+    {% set listeValChampsSuppl = [] %}
+	{% for inscription in inscriptions %}
+		{% set personne = inscription.personne %}
+		{% if groupe %}
+			{% for champ in groupe.champsExtras %}
+				{% for value in inscription.valuesExtras %}
+					{% if value.champExtra.id == champ.id %}
+						{% if value.valueChampExtraGroupe =='' %}
+                            {#% set value.valueChampExtraGroupe ='NE' %#}
+                        {% endif %}
+							{#% set listeValChampsSuppl = listeValChampsSuppl|merge([personne]) %#}
+							{% set listeValChampsSuppl = listeValChampsSuppl|merge([{
+							IdChampSuppl: champ.id, 
+							EtiquetteChampSuppl: champ.etiquette, 
+							ValChampsSuppl: value.valueChampExtraGroupe, 
+							IdPersonne: personne.id
+							}]) %}
+						{#% endif %#}
+					{% endif %}
+				{% endfor %}
+			{% endfor %}
+		{% endif %}
+	{% endfor %}
+       
+    {#on liste toutes les valeurs sup avec le nom#}	
+        {% set InfoBulletin = [] %}
+         {% set TABDEBUG = [] %}
+    {# def des var avant boucle#}
+        {% set varIdNumAbon='NR' %}
+        {% set varEtiquetteNumAbon='NR' %}
+        {% set varValNumAbon='NR' %} 
+        {% set varIdAbonGratuit='NR' %}
+        {% set varEtiquetteAbonGratuit='NR' %}
+        {% set varValAbonGratuit='NR' %} 
+        {% set varIdTourneeFac='NR' %}
+        {% set varEtiquetteTourneeFac='NR' %}
+        {% set varValChampsSupplTourneeFac='NR' %}
+        {% set varIdDistri='NR'  %}
+        {% set varEtiquetteDistri='NR'  %}
+        {% set varValChampsSupplDistri='NR'  %} 
+        {% set varIdCentreDistri='NR'%}
+        {% set varEtiquetteCentreDistri='NR' %}
+        {% set varValChampsSupplCentreDistri='NR' %} 
+        {% set varIdBacPost='NR' %}
+        {% set varEtiquetteBacPost='NR' %}
+        {% set varValChampsSupplBacPost='NR' %} 
+        {% set varIdFinabon='NR' %}
+        {% set varEtiquetteFinabon='NR' %}
+        {% set varValChampsSupplFinabon='NR' %}
+    
+        {% set varnumeroRue='NR' %}
+        {% set  varrue='NR' %}
+        {% set varcp='NR' %} 
+        {% set  varville='NR'%}
+        {% set  varcomplementAdresse=''%}
+    
+    {# FIN def des var hors boucle#}
+    
+    {% for inscription in inscriptions %}
+		    {% set personne = inscription.personne %}
+    
+            {#on récupère les adresses de la personne#}
+            {% if personne.membrefoyer|length > 0 %}
+                {% for foyer in personne.membrefoyer %}
+                   {% if foyer.adressePostale %}
+                      {% set varnumeroRue= foyer.adressePostale.numeroRue %}
+                      {% set  varrue= foyer.adressePostale.rue %}
+                      {% set varcp= foyer.adressePostale.cp%}
+                      {% set varville=foyer.adressePostale.ville %}
+                      {% set varcomplementAdresse=foyer.adressePostale.complementAdresse %}
+                   {% endif %}
+                {% endfor %}
+            {% endif %}
+    
+            {% if groupe %}
+                    						
+                            {% for Cle4 in listeValChampsSuppl|sortByField('NomPer') %}
+                                {% if personne.id== Cle4.IdPersonne %}  
+                                 
+    
+                                {#on filtre le valeur sup selon leur Id#}
+                                     {#Numéro abonné#}
+                                    {% if Cle4.IdChampSuppl==47013 %}
+                                           {% set  varIdNumAbon=Cle4.IdChampSuppl %}
+                                          {% set   varEtiquetteNumAbon=Cle4.EtiquetteChampSuppl %}
+                                          {% set  varValNumAbon=Cle4.ValChampsSuppl %} 
+                                    {% endif %}
+                                    
+                                       {#Abonnement gratuit#}
+                                    {% if Cle4.IdChampSuppl==47011 %}
+                                           {% set  varIdAbonGratuit=Cle4.IdChampSuppl %}
+                                          {% set   varEtiquetteAbonGratuit=Cle4.EtiquetteChampSuppl %}
+                                          {% set  varValAbonGratuit=Cle4.ValChampsSuppl %} 
+                                    {% endif %}
+    
+                                     {#tournée facteur#}
+                                    {% if Cle4.IdChampSuppl==47087 %}
+                                        {% set  varIdTourneeFac=Cle4.IdChampSuppl %}
+                                          {% set  varEtiquetteTourneeFac=Cle4.EtiquetteChampSuppl %}
+                                           {% set  varValChampsSupplTourneeFac=Cle4.ValChampsSuppl %} 
+                                    {% endif %}
+    
+                                    {#distribution#}
+                                    {% if Cle4.IdChampSuppl==47077 %}
+                                           {% set  varIdDistri=Cle4.IdChampSuppl %}
+                                            {% set   varEtiquetteDistri=Cle4.EtiquetteChampSuppl %}
+                                           {% set varValChampsSupplDistri=Cle4.ValChampsSuppl %} 
+                                    {% endif %}
+    
+    
+                                    {#Centre distribution#}
+                                    {% if Cle4.IdChampSuppl==47078 %}
+                                           {% set  varIdCentreDistri=Cle4.IdChampSuppl %}
+                                            {% set   varEtiquetteCentreDistri=Cle4.EtiquetteChampSuppl %}
+                                           {% set varValChampsSupplCentreDistri=Cle4.ValChampsSuppl %} 
+                                    {% endif %}
+    
+                                     
+                                    {#Bac pour la poste#}
+                                    {% if Cle4.IdChampSuppl==47426 %}
+                                           {% set  varIdBacPost=Cle4.IdChampSuppl %}
+                                            {% set   varEtiquetteBacPost=Cle4.EtiquetteChampSuppl %}
+                                           {% set varValChampsSupplBacPost=Cle4.ValChampsSuppl %} 
+                                    {% endif %}
+                                    
+
+                                    
+                                    {#Fin abonnement#}
+                                    {% if Cle4.IdChampSuppl==47010 %}
+                                        {% set  varIdFinabon=Cle4.IdChampSuppl %}
+                                          {% set  varEtiquetteFinabon=Cle4.EtiquetteChampSuppl %}
+                                           {% set  varValChampsSupplFinabon=Cle4.ValChampsSuppl %} 
+                                        {% endif %}
+                                    {% endif %}
+
+                                       
+                            {% endfor %}
+     
+    
+                            {% set InfoBulletin = InfoBulletin|merge([{ 
+                                    IdPer:personne.id,
+                                    NomPer:personne.nom, 
+                                    ParticuleNomPersonne: personne.particuleNom, 
+							         PrenomPersonne: personne.prenom, 
+							         TitrePersonne: personne.titre, 
+                                    TelMobilePerso: personne.telMobilePerso, 
+                                    TelMobilePro: personne.telMobilePro, 
+                                    MailPerso: personne.mailPerso, 
+                                    MailPro: personne.mailPro,
+                                    PostaleNoRue : varnumeroRue,
+                                    PostaleRue : varrue,
+                                    PostaleComplement: varcomplementAdresse,
+                                    PostaleCP : varcp,
+                                    PostaleVille : varville,
+    
+                                  IdNumAbon:varIdNumAbon,
+                                  EtiquetteNumAbon:varEtiquetteNumAbon,
+                                  ValNumAbon:varValNumAbon,
+    
+                                  IdAbonGratuit:varIdAbonGratuit,
+                                  EtiquetteAbonGratuit:varEtiquetteAbonGratuit,
+                                  ValAbonGratuit:varValAbonGratuit,
+    
+                                  IdTourneeFac:varIdTourneeFac,
+                                  EtiquetteTourneeFac:varEtiquetteTourneeFac,
+                                  ValChampsSupplTourneeFac:varValChampsSupplTourneeFac,
+                                  
+                                  IdDistri:varIdDistri,
+                                  EtiquetteDistri:varEtiquetteDistri,
+                                  ValChampsSupplDistri:varValChampsSupplDistri,
+    
+                                  IdCentreDistri:varIdCentreDistri,
+                                  EtiquetteCentreDistri:varValChampsSupplCentreDistri,
+                                  ValChampsSupplCentreDistri:varValChampsSupplCentreDistri,
+    
+                                IdBacPost:varIdBacPost,
+                                EtiquetteBacPost:varEtiquetteBacPost,
+                                varValChampsSupplBacPost:varValChampsSupplBacPost,
+                                  
+                                  IdFinabon:varIdFinabon,
+                                  EtiquetteFinabon:varEtiquetteFinabon,
+                                  ValFinabon:varValChampsSupplFinabon 
+    
+                                }]) %} 
+    
+                               
+                    
+            {% endif %}
+    {% endfor %}  
+
+    
+    {#********************************debut code HTML************************************************************#}	
+    
+    {% for Cle3 in InfoBulletin|sortByField(choixtri) %}	    
+            Date de dépot : {{datedepot|date_modify('+' ~options.nbjouravtdepos ~ ' day')|date("d/m/y")}}<br />
+            Date de distribution : {{datedistri|date_modify('+' ~options.nbjouravtdistri ~ ' day')|date("d/m/y")}}<br />
+       						
+            {{Cle3.TitrePersonne}} {{Cle3.PrenomPersonne}} {{Cle3.ParticuleNomPersonne}} {{Cle3.NomPer}}<br />
+            {{Cle3.PostaleNoRue}} {% if Cle3.PostaleRue %} {{Cle3.PostaleRue}} <br /> {% endif %}{% if Cle3.PostaleComplement %}{{Cle3.PostaleComplement}} <br /> {% endif %} {{Cle3.PostaleCP}}  {{Cle3.PostaleVille}}<br />
+            {{Cle3.ValNumAbon}}--{{Cle3.ValAbonGratuit}}--{{Cle3.ValChampsSupplTourneeFac}}--{{Cle3.ValChampsSupplDistri}}--{{Cle3.ValChampsSupplCentreDistri}}--{{Cle3.varValChampsSupplBacPost}}--{{Cle3.ValFinabon}}<br /><br />
+
+        {% endfor %}
+    
+ {% endif %}
+    
+</body>
+</html></code-language-twig>
